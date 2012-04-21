@@ -18,7 +18,7 @@ $ProgressPreference = "SilentlyContinue"
 log
 log -Info "Connecting to vSphere"
 $viserver = Connect-VIServer -Server $VcServer -User $Username -Password $Password
-
+$Host.UI.RawUI.WindowTitle = "Boot Stress Test - $ClusterName - $PoolName"
 while ($true)
 {
     log -Info "Finding VMs in pool $PoolName in cluster $ClusterName"

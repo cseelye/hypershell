@@ -20,6 +20,7 @@ $ProgressPreference = "SilentlyContinue"
 log
 log -Info "Connecting to vSphere"
 $viserver = Connect-VIServer -Server $VcServer -User $Username -Password $Password
+$Host.UI.RawUI.WindowTitle = "Migration Stress Test - $ClusterName - $PoolName"
 
 $cluster = Get-Cluster -Name $ClusterName
 
@@ -64,12 +65,13 @@ while ($true)
         $tasks += $vm | Move-VM -Datastore $ds -Confirm:$false -RunAsync
     }
     $tasks | Wait-Task | Out-Null
+    log -Color Green "All VMs migrated back"
 
-    Write-Host "Waiting for $WaitTime seconds..."
+    log -Info "Waiting for $WaitTime seconds..."
     $remaining = $WaitTime
     while ($remaining -gt 0)
     {
-        Write-Host "    Continuing test in $remaining sec"
+        log -Color Gray "    Continuing test in $remaining sec"
         Start-Sleep 1
         $remaining--
     }

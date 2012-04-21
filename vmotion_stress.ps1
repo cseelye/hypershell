@@ -19,6 +19,7 @@ $ProgressPreference = "SilentlyContinue"
 log
 log -Info "Connecting to vSphere"
 $viserver = Connect-VIServer -Server $VcServer -User $Username -Password $Password
+$Host.UI.RawUI.WindowTitle = "vMotion Stress Test - $ClusterName - $PoolName"
 
 $cluster = Get-Cluster -Name $ClusterName
 
@@ -61,6 +62,7 @@ while ($true)
         $tasks += $vm | Move-VM -Destination $new_host -Confirm:$false -RunAsync
     }
     $tasks | Wait-Task | Out-Null
+    log -Color Green "All VMs moved successfully"
 
     log -Info "Waiting for $WaitTime seconds..."
     $remaining = $WaitTime
