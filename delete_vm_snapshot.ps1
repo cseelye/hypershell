@@ -32,11 +32,20 @@ foreach ($vm in $vm_list)
     }
     $snap = @($snap_list)[0]
     
-    log -Color Cyan "Deleting snap $snap from $vm"
+    log -Color Cyan "Deleting snap '$snap' from $vm"
     $tasks += $snap | Remove-Snapshot -Confirm:$false -RunAsync
 }
 log -Info "Waiting for delete to complete on all VMs"
-$tasks | Wait-Task | Out-Null
+Start-Sleep 10
+foreach ($task in $tasks)
+{
+    $vm_id = $task.ObjectId
+    $vm = Get-VM -Id $vm_id
+    log -Debug "Waiting for snap delete on $vm"
+    #Wait-Task -Task $task
+    $tv = $task | Get-View
+    $tv.WaitForTask($tv.MoRef) | Out-Null
+}
 log -Color Green "All VMs have finished deleting snapshots"
 
 log

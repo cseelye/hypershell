@@ -35,7 +35,16 @@ foreach ($vm in $vm_list)
     $tasks += $vm | Set-VM -Snapshot $snap -Confirm:$false -RunAsync
 }
 log -Info "Waiting for revert to complete on all VMs"
-$tasks | Wait-Task | Out-Null
+Start-Sleep 10
+foreach ($task in $tasks)
+{
+    $vm_id = $task.ObjectId
+    $vm = Get-VM -Id $vm_id
+    log -Debug "Waiting for snap revert on $vm"
+    #Wait-Task -Task $task
+    $tv = $task | Get-View
+    $tv.WaitForTask($tv.MoRef) | Out-Null
+}
 log -Color Green "All VMs have finished reverting to snapshot"
 
 log

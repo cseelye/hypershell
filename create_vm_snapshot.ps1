@@ -29,7 +29,15 @@ foreach ($vm in $vm_list)
     $tasks += $vm | New-Snapshot -Name $snap_name -Memory:$true -Quiesce:$true -RunAsync
 }
 log -Info "Waiting for snapshots to complete"
-$tasks | Wait-Task | Out-Null
+foreach ($task in $tasks)
+{
+    $vm_id = $task.ObjectId
+    $vm = Get-VM -Id $vm_id
+    log -Debug "Waiting for snap on $vm"
+    #Wait-Task -Task $task
+    $tv = $task | Get-View
+    $tv.WaitForTask($tv.MoRef) | Out-Null
+}
 log -Color Green "All snapshots have finished"
 
 log
