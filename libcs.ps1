@@ -101,7 +101,7 @@ Function Add-AllIscsiDatastores
         if ($Vendor -eq "SolidFir")
         {
             $pieces = $iqn.split(".")
-            $volume_name = $pieces[4]
+            $volume_name = $pieces[4] + "." + $pieces[5]
             if ($volume2lun.ContainsKey($volume_name))
             {
                 log -Error "Duplicate volume name detected.  This script cannot handle that case."
