@@ -21,7 +21,7 @@ try
         $disk_sig = ($cluster_disk | Get-ClusterParameter -Name DiskSignature).Value
         # Convert signature from hex (0xABCD1234) to decimal (2882343476) - the cluster commands use hex but the WMI objects use dec
         $disk_sig = [Convert]::ToUInt32($disk_sig, 16)
-    
+
         # Get the volume label
         $disk_wmi = Get-WmiObject -Query "SELECT * FROM MSCluster_Disk WHERE Signature=$disk_sig" -Namespace root/MSCluster -ComputerName $ClusterName -Authentication PacketPrivacy
         $partition_wmi =  Get-WmiObject -Query "ASSOCIATORS OF {$disk_wmi} WHERE ResultClass=MSCluster_DiskPartition" -Namespace root/MSCluster -ComputerName $ClusterName -Authentication PacketPrivacy
@@ -43,7 +43,7 @@ try
         {
             $new_csv_path = "C:\ClusterStorage\" + $csv.Name
             Log-Info ("Renaming CSV mount point " + $csv_path + " to " + $new_csv_path)
-        
+
             # Rename the mount folder to match the volume name
             # Use powershell remoting to execute the command on the remote system
             Invoke-Command -ComputerName $ClusterName -ScriptBlock { Rename-Item -Path $args[0] -NewName $args[1] } -Args $csv_path,$new_csv_path

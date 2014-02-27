@@ -41,11 +41,11 @@ try
     {
         $vms = Get-SCVirtualMachine -VMMServer $vmm | Where {$_.Name -match $VmRegex}
     }
-    
+
     $asyncJobs = @()
     foreach ($vm in $vms)
     {
-        $checkpoints = Get-SCVMCheckpoint -VM $vm 
+        $checkpoints = Get-SCVMCheckpoint -VM $vm
         if($checkpoints.Length -gt 0)
         {
             #get the last checkpoint in the array
@@ -54,9 +54,9 @@ try
             Log-Info "Restoring $($vm.Name) to $($last_checkpoint.Name)"
             Restore-SCVMCheckpoint -VMCheckpoint $last_checkpoint -RunAsynchronously -JobVariable "job" | Out-Null
             $asyncJobs += $job
-        }   
+        }
     }
-    
+
     while ($true)
     {
         $finished = $true

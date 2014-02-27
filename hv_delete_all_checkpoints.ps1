@@ -45,7 +45,7 @@ try
     $failed_count = 0
     foreach ($vm in $vms)
     {
-        Log-Info "Getting checkpoints for $($vm.Name)"    
+        Log-Info "Getting checkpoints for $($vm.Name)"
         $checkpoints = Get-SCVMCheckpoint -VM $vm
         if($checkpoints.Length -eq 0)
         {

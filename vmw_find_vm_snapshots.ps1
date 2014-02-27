@@ -1,42 +1,57 @@
 ﻿Param(
-  $VcServer = "192.168.0.0",
+  $MgmtServer = "192.168.0.0",
   $Username = "script_user",
   $Password = "password",
   $ClusterName = "esxcluster" # leave empty for all clusters
 )
-# Use in ISE debugger or standard PS shell (not in PowerCLI shell)
-#Add-PSSnapin "Vmware.VimAutomation.Core"
-
+Write-Host
 $ErrorActionPreference = "Stop"
 $WarningPreference = "SilentlyContinue"
 $ProgressPreference = "SilentlyContinue"
-. ./libcs.ps1
 
-log
-log -Info "Connecting to $VcServer"
-$viserver = connect-viserver -server $VcServer -user $Username -password $Password
+try
+{
+    Add-PSSnapin "Vmware.VimAutomation.Core" | Out-Null
+    Import-Module -DisableNameChecking .\csutil.psm1
 
-if ([string]::IsNullOrEmpty($ClusterName))
-{
-    log -Info "Finding all VMs with snapshots"
-    $vm_list = Get-VM
-}
-else
-{
-    log -Info "Finding all VMs with snapshots in cluster $ClusterName"
-    $vm_list = Get-Cluster -Name $ClusterName | Get-VM | Sort-Object
-}
-$vm_snaps = @()
-foreach ($vm in $vm_list) 
-{
-    $snap_list = $vm | Get-Snapshot
-    if (@($snap_list).Count -le 0)
+    Write-Host
+    Log-Info "Connecting to $MgmtServer"
+    $viserver = connect-viserver -server $MgmtServer -user $Username -password $Password
+
+    if ([string]::IsNullOrEmpty($ClusterName))
     {
-        continue
+        Log-Info "Finding all VMs with snapshots"
+        $vm_list = Get-VM
     }
-    log -Info ("$vm has " + @($snap_list).Count + " snapshots")
-    foreach ($snap in $snap_list)
+    else
     {
-        log -Info ("  " + $snap)
+        Log-Info "Finding all VMs with snapshots in cluster $ClusterName"
+        $vm_list = Get-Cluster -Name $ClusterName | Get-VM | Sort-Object
     }
+    $vm_snaps = @()
+    foreach ($vm in $vm_list)
+    {
+        $snap_list = $vm | Get-Snapshot
+        if (@($snap_list).Count -le 0)
+        {
+            continue
+        }
+        Log-Info ("$vm has " + @($snap_list).Count + " snapshots")
+        foreach ($snap in $snap_list)
+        {
+            Log-Info ("  " + $snap)
+        }
+    }
+}
+catch
+{
+    $err_message = $_.ToString() + "`n`t" + $_.ScriptStackTrace
+    try { Log-Error $err_message }
+    catch { Write-Host $err_message }
+    exit 1
+}
+finally
+{
+    try { Reinstate-Log } catch {}
+    Write-Host
 }

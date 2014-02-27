@@ -42,7 +42,7 @@ try
 	{
         $vms = Get-SCVirtualMachine -VMMServer $vmm | Where {$_.Status -eq "Running"} | Where { $_.Name -match $VmRegex }
     }
-    
+
     $count = $vms.Count
     if ($VmCount -gt 0 -and $count -gt $VmCount)
     {

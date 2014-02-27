@@ -48,7 +48,7 @@ try
     {
         if($VMHost.Length -eq 0)
         {
-            $VMHosts = Get-SCVMHost -VMMServer $vmm 
+            $VMHosts = Get-SCVMHost -VMMServer $vmm
             $randIndex = Get-Random -Minimum 0 -Maximum $VMHosts.Length
             $VMHost = $VMHosts[$randIndex]
         }

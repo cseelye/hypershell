@@ -31,7 +31,7 @@ try
     $cred = new-object -typename System.Management.Automation.PSCredential -argumentlist $Username, $pw
     Log-info "Connecting to $MgmtServer"
     $vmm = Get-SCVMMServer -ComputerName $MgmtServer -Credential $cred
-    
+
     if ($VmName)
     {
         Log-Info "Searching for VM $VmName on $MgmtServer"

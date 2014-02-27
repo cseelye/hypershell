@@ -59,7 +59,7 @@ try
                     Log-Info "$($check.Name)"
                  }
             }
-        }   
+        }
     }
     if($Csv -or $Bash)
     {

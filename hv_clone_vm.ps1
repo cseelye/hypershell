@@ -19,14 +19,14 @@ Write-Host
 $ErrorActionPreference = "Stop"
 $WarningPreference = "SilentlyContinue"
 $ProgressPreference = "SilentlyContinue"
- 
+
 try
 {
     # Make sure the CWD is the same as the location of this script file
     Split-Path ((Get-Variable MyInvocation -Scope 0).Value).MyCommand.Path | Set-Location
     Import-Module $ScvmmModulePath | Out-Null
     Import-Module -DisableNameChecking .\csutil.psm1
-    
+
     if($CloneName.Length -eq 0){
         Log-Error "You must provide a clone name"
         exit 1
@@ -61,7 +61,7 @@ try
         {
             $VMHost = Get-SCVMHost
             $index = Get-Random -Minimum 0 -Maximum ($VMHost.Length - 1)
-            $VMHost = $VMHost[$index]            
+            $VMHost = $VMHost[$index]
         }
 
         # Clone the VM

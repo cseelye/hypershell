@@ -1,55 +1,70 @@
 ﻿Param(
-  $VcServer = "192.168.0.0",
+  $MgmtServer = "192.168.0.0",
   $Username = "script_user",
   $Password = "password",
   $ClusterName = "esxcluster",
   $PoolName = "pool1",
   $IpPrefix = "192"
 )
-# Use in ISE debugger or standard PS shell (not in PowerCLI shell)
-#Add-PSSnapin "Vmware.VimAutomation.Core"
-
+Write-Host
 $ErrorActionPreference = "Stop"
 $WarningPreference = "SilentlyContinue"
+$ProgressPreference = "SilentlyContinue"
 
-. ./libcs.ps1
-
-log
-log -Info "Connecting to $VcServer"
-$viserver = connect-viserver -server $VcServer -user $Username -password $Password
-
-$vm_list = Get-Cluster -Name $ClusterName | Get-ResourcePool -Name $PoolName | Get-VM
-$vm_list = $vm_list | Sort-Object
-
-foreach ($vm in $vm_list)
+try
 {
-    if ($vm.PowerState -ne "poweredon")
+    Add-PSSnapin "Vmware.VimAutomation.Core" | Out-Null
+    Import-Module -DisableNameChecking .\csutil.psm1
+
+    Write-Host
+    Log-Info "Connecting to $MgmtServer"
+    $viserver = connect-viserver -server $MgmtServer -user $Username -password $Password
+
+    $vm_list = Get-Cluster -Name $ClusterName | Get-ResourcePool -Name $PoolName | Get-VM
+    $vm_list = $vm_list | Sort-Object
+
+    foreach ($vm in $vm_list)
     {
-        log -Info "$vm is not powered on"
-    }
-    else
-    {
-        foreach ($ip in $vm.Guest.IpAddress)
+        if ($vm.PowerState -ne "poweredon")
         {
-            if ($ip.StartsWith($ipPrefix))
+            Log-Info "$vm is not powered on"
+        }
+        else
+        {
+            foreach ($ip in $vm.Guest.IpAddress)
             {
-                $vm_ip = $ip
-                break
+                if ($ip.StartsWith($ipPrefix))
+                {
+                    $vm_ip = $ip
+                    break
+                }
+            }
+            if (-not $vm_ip)
+            {
+                Log-Warn "Could not find an IP address for $vm"
+                continue
+            }
+            Log-Info "Checking $vm at $vm_ip"
+
+            $response = ssh-command -Hostname $vm_ip -RemoteCommand "tail /cygdrive/c/Users/Administrator/Desktop/vdbench/output/logfile.html"
+            foreach ($line in $response.Split("`n"))
+            {
+                Log-Debug " | $line"
             }
         }
-        if (-not $vm_ip)
-        {
-            log -Warn "Could not find an IP address for $vm"
-            continue
-        }
-        log -Info "Checking $vm at $vm_ip"
-        
-        $response = ssh-command -Hostname $vm_ip -RemoteCommand "tail /cygdrive/c/Users/Administrator/Desktop/vdbench/output/logfile.html"
-        foreach ($line in $response.Split("`n"))
-        {
-            log -Debug " | $line"
-        }
     }
+    Write-Host
+    disconnect-viserver -server * -force -confirm:$false | out-null
 }
-log
-disconnect-viserver -server * -force -confirm:$false | out-null
+catch
+{
+    $err_message = $_.ToString() + "`n`t" + $_.ScriptStackTrace
+    try { Log-Error $err_message }
+    catch { Write-Host $err_message }
+    exit 1
+}
+finally
+{
+    try { Reinstate-Log } catch {}
+    Write-Host
+}

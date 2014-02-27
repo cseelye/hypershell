@@ -8,7 +8,7 @@
     $Password = "",
     [Switch] $Csv,
     [Switch] $Bash
-) 
+)
 $ScvmmModulePath = 'C:\Program Files\Microsoft System Center 2012 R2 \Virtual Machine Manager\bin\psModules\virtualmachinemanager\virtualmachinemanager.psd1'
 
 Write-Host

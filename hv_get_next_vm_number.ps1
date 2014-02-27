@@ -20,7 +20,7 @@ try
     Split-Path ((Get-Variable MyInvocation -Scope 0).Value).MyCommand.Path | Set-Location
     Import-Module $ScvmmModulePath | Out-Null
     Import-Module -DisableNameChecking .\csutil.psm1
- 
+
 
     if ($Csv -or $Bash)
     {
@@ -34,7 +34,7 @@ try
 
     Log-Info "Finding VMs in cluster $ClusterName that match $VMPrefix"
     $vms = Get-SCVirtualMachine -VMMServer $vmm | Where { $_.Name -match $VMPrefix }
-    
+
     if($vms.Length -le 0)
     {
         Log-Error "There are no matching VMs"

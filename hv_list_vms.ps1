@@ -42,7 +42,7 @@ try
         Log-Info "Finding VMs in cluster $ClusterName"
         $vms = Get-SCVirtualMachine -VMMServer $vmm
     }
-    
+
     $vmCount = $vms.Count
     Log-info "There are $vmCount VMs on the cluster"
     if ($Csv -or $Bash)
