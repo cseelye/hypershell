@@ -1,5 +1,6 @@
 ﻿Param(
     [System.String] $MgmtServer = "scvmm.example.com",
+    [System.String] $ClusterName = "mscs.example.com",
     [System.String] $VmName = "",
     [System.String] $VmRegex = "",
     [System.Int32]  $VmCount = 0,

@@ -45,9 +45,19 @@ try
     
     $vmCount = $vms.Count
     Log-info "There are $vmCount VMs on the cluster"
-    foreach ($vm in $vms)
+    if ($Csv -or $Bash)
     {
-        Log-info "$vm"
+
+        $separator = ","
+        if ($Bash) { $separator = " " }
+        Write-Host ([System.String]::Join($separator, $vms))
+    }
+    else
+    {
+        foreach ($vm in $vms)
+        {
+            Log-info "$vm"
+        }
     }
 
 }
