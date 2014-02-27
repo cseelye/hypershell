@@ -58,7 +58,7 @@ try
         $retry = 0
         while ($retry -lt 3)
         {
-            $error = $false
+            $error1 = $false
             Log-Info ("  Adding " + $disk.Name + " as a CSV")
             $csv = Add-ClusterSharedVolume -Cluster $ClusterName -Name $disk.Name
 
@@ -69,13 +69,13 @@ try
                 Log-Warn ("  " + $disk.Name + " incorrectly mounted at C:\ClusterStorage\ - attempting to fix")
                 Remove-ClusterSharedVolume -Cluster $ClusterName -Name $disk.Name | Out-Null
                 $retry++
-                $error = $true
+                $error1 = $true
                 Start-Sleep 10
                 continue
             }
             break;
         }
-        if ($error)
+        if ($error1)
         {
             Log-Error ("Could not correctly mount " + $disk.Name)
             continue
